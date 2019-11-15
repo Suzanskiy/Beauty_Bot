@@ -25,6 +25,6 @@ public class BeautySalonDatabase {
 
     public void createTables() throws SQLException {
         clients.createTable();
-        dayTable.createTable(); dayTable.createSkeleton("2019-11-11");
+        dayTable.createTable(); dayTable.createSkeleton();
     }
 }

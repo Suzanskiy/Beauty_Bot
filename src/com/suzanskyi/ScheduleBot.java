@@ -138,8 +138,15 @@ public class ScheduleBot extends TelegramLongPollingBot {
                     }
 
                     try {
-                        execute(MSG.SimpleMessage(chatId, temp.get(1), temp.get(2).substring(0, 5), upd.getMessage().getFrom().getFirstName()));
+                        execute(MSG.SimpleMessage(chatId, temp.get(0), temp.get(1).substring(0, 5), upd.getMessage().getFrom().getFirstName()));
                     } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                } else if (upd.getMessage().getText().equals("Отменить запись\uD83D\uDE14️")) {
+                    // TODO прощальный текст
+                    try {
+                        clients.cancelSchedule(upd);
+                    } catch (SQLException e) {
                         e.printStackTrace();
                     }
                 }
@@ -168,18 +175,21 @@ public class ScheduleBot extends TelegramLongPollingBot {
                     List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
                     List<InlineKeyboardButton> rowInline = new ArrayList<>();
                     try {
-                        temp = dutyDay.getEmptyTime();
+                        temp = dutyDay.getEmptyTime(data);
                         dutyDay.close();
                     } catch (SQLException | IOException e) {
                         e.printStackTrace();
                     }
-
+//todo сюда ебани
+                    int count = 0;
                     for (String button : temp
                     ) {
                         rowInline.add(new InlineKeyboardButton().setText(button).setCallbackData(String.valueOf(button)));
+
                     }
                     rowsInline.add(rowInline);
                     markupInline.setKeyboard(rowsInline);
+
                     SendMessage message = new SendMessage()
                             .setText("Вот свободное время ").setChatId(chatid)
                             .setParseMode("Markdown")

@@ -71,6 +71,15 @@ public class Clients extends BaseTable implements TableOperations {
                         "SET sch_time = ' " + time + " '\n" +
                         "Where telegramId = '" + telegramId + "'",
                 "Update client schedule time");
+        ResultSet set = super.executeSqlStatement("Select id, sch_date, sch_time FROM clients where telegramId = '" + telegramId + "'", "delete exesting rows");
+        String schDate = null;
+        while (set.next()) {
+
+            schDate = set.getString("sch_date");
+            time = set.getString("sch_time");
+        }
+        super.executeSqlStatement("DELETE FROM dutyday WHERE date = '" + schDate + "' and time = '" + time + "' ", "delete");
+
         super.executeSqlStatement("Insert into dutyDay ( clientId, date, time )\n" +
                 "Select id, sch_date, sch_time\n" +
                 "       FROM clients", "updating in duty table");
@@ -80,18 +89,26 @@ public class Clients extends BaseTable implements TableOperations {
         List<String> temp = new LinkedList<>();
         ResultSet set = super.executeSqlStatement("Select clientName, sch_date, sch_time from clients where  telegramId = '" + username + "'", "User checks his shedule");
 
-        String nm=null;
-        String schDate=null;
-        String time=null;
+
+        String schDate = null;
+        String time = null;
 
         while (set.next()) {
-            nm = set.getString("clientName");
+
             schDate = set.getString("sch_date");
             time = set.getString("sch_time");
         }
-        temp.add(nm) ; temp.add(schDate); temp.add(time);
+        temp.add(schDate);
+        temp.add(time);
 
         return temp;
+    }
+
+    public void cancelSchedule(Update upd) throws SQLException {
+        List<String> list = getMySchedule(upd.getMessage().getFrom().getUserName());
+        super.executeSqlStatement("Update dutyDay\n" +
+                "Set clientId = null\n" +
+                "Where date = ' " + list.get(0) + " ' and time = ' " + list.get(1) + " '", "cancel schedule");
     }
 
 }
